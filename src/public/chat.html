@@ -69,6 +69,7 @@
             color: #007bff;
         }
 
+        /* Sol Alt Profil Alanı */
         .account-footer {
             position: relative;
             padding: 12px 16px;
@@ -95,6 +96,11 @@
             background-color: #e2e8f0;
         }
 
+        .account-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
         .account-avatar {
             width: 36px;
             height: 36px;
@@ -107,13 +113,23 @@
             font-weight: bold;
             font-size: 15px;
             overflow: hidden;
-            flex-shrink: 0;
         }
 
         .account-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            background-color: #10b981;
         }
 
         .account-details {
@@ -143,26 +159,85 @@
             font-weight: 400;
         }
 
-        .account-actions {
-            display: flex;
-            align-items: center;
+        /* Profil / Ayarlar Açılır Menüsü */
+        .user-popover {
+            display: none;
+            position: absolute;
+            bottom: 65px;
+            left: 12px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 230px;
+            padding: 10px;
+            z-index: 1001;
+            flex-direction: column;
             gap: 6px;
         }
+        .user-popover.show { display: flex; }
 
-        .logout-btn-text {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 6px;
-            border-radius: 4px;
-            transition: background 0.2s;
+        .popover-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            padding: 2px 6px;
+            text-transform: uppercase;
         }
 
-        .logout-btn-text:hover {
+        .status-selector-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .status-pill {
+            padding: 6px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .status-pill:hover {
+            background: #f1f5f9;
+        }
+        .status-pill.active-status {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .popover-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .popover-item:hover {
+            background-color: #f1f5f9;
+        }
+        .popover-item.logout {
+            color: #ef4444;
+        }
+        .popover-item.logout:hover {
             background-color: #fee2e2;
+        }
+
+        .popover-divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 4px 0;
         }
 
         .main-container {
@@ -360,9 +435,13 @@
             </div>
         </div>
 
+        <!-- Sol Alt Profil ve Açılır Menü Alanı -->
         <div class="account-footer">
-            <div class="account-info" id="settingsBtn" title="Hesap Ayarları">
-                <div class="account-avatar" id="accountAvatar">M</div>
+            <div class="account-info" id="profileMenuToggle" title="Profil & Menü">
+                <div class="account-avatar-wrapper">
+                    <div class="account-avatar" id="accountAvatar">M</div>
+                    <div class="status-dot" id="accountStatusDot"></div>
+                </div>
                 <div class="account-details">
                     <div class="account-name-wrapper">
                         <span class="account-name" id="accountName">Kullanıcı</span>
@@ -370,8 +449,21 @@
                     </div>
                 </div>
             </div>
-            <div class="account-actions">
-                <button class="logout-btn-text" id="logoutBtn">Çıkış</button>
+
+            <!-- Açılır Menü (Durum Seçimi + Ayarlar + Hesaptan Çık) -->
+            <div class="user-popover" id="userPopover">
+                <div class="popover-section-title">Durum Seç</div>
+                <div class="status-selector-grid">
+                    <div class="status-pill active-status" id="stat-aktif" onclick="setStatus('Çevrim İçi', '#10b981', 'stat-aktif')">Aktif</div>
+                    <div class="status-pill" id="stat-mesgul" onclick="setStatus('Meşgul', '#ef4444', 'stat-mesgul')">Meşgul</div>
+                    <div class="status-pill" id="stat-rahatsiz" onclick="setStatus('Rahatsız Etmeyin', '#f59e0b', 'stat-rahatsiz')">Rahatsız</div>
+                    <div class="status-pill" id="stat-gorunmez" onclick="setStatus('Görünmez', '#94a3b8', 'stat-gorunmez')">Gizli</div>
+                </div>
+                
+                <div class="popover-divider"></div>
+                
+                <div class="popover-item" onclick="openSettingsModal()">⚙️ Hesap Ayarları</div>
+                <div class="popover-item logout" onclick="logoutUser()">🚪 Hesaptan Çık</div>
             </div>
         </div>
     </div>
@@ -427,6 +519,14 @@
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
             const avatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
+            const savedColor = localStorage.getItem('light_status_color') || '#10b981';
+            const savedPillId = localStorage.getItem('light_status_pill') || 'stat-aktif';
+
+            document.getElementById('accountStatusDot').style.backgroundColor = savedColor;
+            
+            document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
+            const activePill = document.getElementById(savedPillId);
+            if (activePill) activePill.classList.add('active-status');
 
             if (username) {
                 document.getElementById('accountName').textContent = username;
@@ -442,6 +542,23 @@
             }
 
             loadAcceptedFriends();
+
+            // Profil menüsünü açma/kapatma mantığı
+            const profileToggle = document.getElementById('profileMenuToggle');
+            const popover = document.getElementById('userPopover');
+
+            profileToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                popover.classList.toggle('show');
+            });
+
+            document.addEventListener('click', () => {
+                popover.classList.remove('show');
+            });
+
+            popover.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
 
             setInterval(() => {
                 const panelTitleText = document.getElementById('panelTitle').textContent;
@@ -459,22 +576,34 @@
                     }
                 }
             }, 3000);
-
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = '/';
-            });
-
-            document.getElementById('settingsBtn').addEventListener('click', () => {
-                const currUser = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
-                const currAvatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
-                document.getElementById('settingsUsernameInput').value = currUser || '';
-                document.getElementById('settingsAvatarFile').value = ''; 
-                updateAvatarPreview(currAvatar, currUser);
-                document.getElementById('settingsModal').classList.add('show');
-            });
         });
+
+        function setStatus(statusName, colorCode, pillId) {
+            document.getElementById('accountStatusDot').style.backgroundColor = colorCode;
+            localStorage.setItem('light_status_color', colorCode);
+            localStorage.setItem('light_status', statusName);
+            localStorage.setItem('light_status_pill', pillId);
+
+            document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
+            document.getElementById(pillId).classList.add('active-status');
+            document.getElementById('userPopover').classList.remove('show');
+        }
+
+        function logoutUser() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/';
+        }
+
+        function openSettingsModal() {
+            document.getElementById('userPopover').classList.remove('show');
+            const currUser = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const currAvatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
+            document.getElementById('settingsUsernameInput').value = currUser || '';
+            document.getElementById('settingsAvatarFile').value = ''; 
+            updateAvatarPreview(currAvatar, currUser);
+            document.getElementById('settingsModal').classList.add('show');
+        }
 
         function closeSettingsModal() {
             document.getElementById('settingsModal').classList.remove('show');
