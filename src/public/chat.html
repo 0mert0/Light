@@ -352,12 +352,15 @@
         <div class="content-body">
             <div class="panel-box">
                 <div class="panel-title" id="panelTitle">Çevrim İçi Listesi</div>
-                <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>
+                <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunvuyor.</p>
             </div>
         </div>
     </div>
 
     <script>
+        let currentChatFriendId = null;
+        let chatInterval = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
@@ -374,8 +377,13 @@
             // İlk açılışta arkadaş listesini yükle
             loadAcceptedFriends();
 
-            // 🚀 F5 atmaya gerek kalmadan her 3 saniyede bir listeyi otomatik güncelle
+            // 🚀 F5 atmaya gerek kalmadan her 3 saniyede bir güncelle (Sohbette değilse)
             setInterval(() => {
+                const panelTitleText = document.getElementById('panelTitle').textContent;
+                if (panelTitleText.includes(' ile Sohbet')) {
+                    return; 
+                }
+
                 const activeTab = document.querySelector('.top-header .tab-btn.active');
                 if (activeTab) {
                     const tabText = activeTab.textContent.trim();
@@ -383,6 +391,8 @@
                         loadAcceptedFriends();
                     } else if (tabText === 'Bekleyenler') {
                         loadPendingRequests();
+                    } else if (tabText === 'Engellenenler') {
+                        loadBlockedUsers();
                     }
                 }
             }, 3000);
@@ -432,6 +442,9 @@
         }
 
         function switchHeaderTab(element, title) {
+            if (chatInterval) clearInterval(chatInterval);
+            currentChatFriendId = null;
+
             document.querySelectorAll('.top-header .tab-btn').forEach(btn => {
                 if (!btn.classList.contains('add-btn')) btn.classList.remove('active');
             });
@@ -442,8 +455,10 @@
 
             if (title === 'Bekleyenler') {
                 loadPendingRequests();
-            } else if (title === 'Arkadaşlar' || title === 'Hepsi') {
+            } else if (title === 'Arkadaşlar' || title === 'Hepsi' || title === 'Çevrim İçi') {
                 loadAcceptedFriends();
+            } else if (title === 'Engellenenler') {
+                loadBlockedUsers();
             } else {
                 document.querySelector('.panel-box').innerHTML = `
                     <div class="panel-title" id="panelTitle">${title} Listesi</div>
@@ -524,10 +539,10 @@
                     `;
                     
                     data.friends.forEach(f => {
-                        let statusColor = '#10b981'; // Çevrim İçi (Yeşil)
-                        if (f.status === 'Meşgul') statusColor = '#ef4444'; // Kırmızı
-                        else if (f.status === 'Rahatsız Etmeyin') statusColor = '#f59e0b'; // Turuncu
-                        else if (f.status === 'Görünmez') statusColor = '#94a3b8'; // Gri
+                        let statusColor = '#10b981';
+                        if (f.status === 'Meşgul') statusColor = '#ef4444';
+                        else if (f.status === 'Rahatsız Etmeyin') statusColor = '#f59e0b';
+                        else if (f.status === 'Görünmez') statusColor = '#94a3b8';
 
                         html += `
                             <div id="friend-row-${f.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -538,7 +553,149 @@
                                         <span style="color: #94a3b8; font-size: 12px;">#${f.tag}</span>
                                     </div>
                                 </div>
-                                <button onclick="removeFriend(${f.id})" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Arkadaşlıktan Çıkart</button>
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="openDirectMessage(${f.id}, '${f.username}')" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Mesaj</button>
+                                    <button onclick="removeFriend(${f.id})" style="padding: 6px 12px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Arkadaşlıktan Çıkart</button>
+                                    <button onclick="blockFriend(${f.id})" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Engelle</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    panelBox.innerHTML = html;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 🚀 Mesajlaşma Paneli Açma ve Anlık Döngü Başlatma
+        async function openDirectMessage(friendId, friendUsername) {
+            currentChatFriendId = friendId;
+            const panelBox = document.querySelector('.panel-box');
+            panelBox.innerHTML = `
+                <div class="panel-title" id="panelTitle">${friendUsername} ile Sohbet</div>
+                <div style="display: flex; flex-direction: column; height: 380px; justify-content: space-between;">
+                    <div id="chatMessages" style="flex: 1; overflow-y: auto; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                        <p style="color: #64748b; font-size: 13px; text-align: center;">Mesajlar yükleniyor...</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="chatInput" placeholder="${friendUsername} kişisine mesaj yaz..." style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none;" onkeypress="if(event.key === 'Enter') sendDirectMessage(${friendId})" />
+                        <button onclick="sendDirectMessage(${friendId})" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Gönder</button>
+                    </div>
+                </div>
+            `;
+
+            await fetchChatMessages(friendId);
+
+            if (chatInterval) clearInterval(chatInterval);
+            chatInterval = setInterval(() => {
+                if (currentChatFriendId === friendId) {
+                    fetchChatMessages(friendId, false);
+                }
+            }, 2000);
+        }
+
+        // 🚀 Mesaj Geçmişini Çekme ve Ekrana Basma Fonksiyonu
+        async function fetchChatMessages(friendId, scrollToBottom = true) {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+            if (!username || !tag) return;
+
+            try {
+                const response = await fetch(`/api/chat/history/${username}/${tag}/${friendId}`);
+                const data = await response.json();
+                const chatMessagesContainer = document.getElementById('chatMessages');
+                
+                if (response.ok && chatMessagesContainer) {
+                    if (!data.messages || data.messages.length === 0) {
+                        chatMessagesContainer.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center;">Henüz mesaj yok. İlk mesajı sen gönder!</p>`;
+                        return;
+                    }
+
+                    let html = '';
+                    data.messages.forEach(m => {
+                        const isMe = m.sender_id === data.myId;
+                        const alignStyle = isMe ? 'align-self: flex-end; background: #007bff; color: white;' : 'align-self: flex-start; background: #e2e8f0; color: #1e293b;';
+                        
+                        html += `
+                            <div style="max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 14px; ${alignStyle}">
+                                ${m.message}
+                            </div>
+                        `;
+                    });
+
+                    chatMessagesContainer.innerHTML = html;
+                    if (scrollToBottom) {
+                        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                    }
+                }
+            } catch (err) {
+                console.error('Mesajlar yüklenirken hata:', err);
+            }
+        }
+
+        // 🚀 Mesaj Gönderme Fonksiyonu
+        async function sendDirectMessage(receiverId) {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            try {
+                const response = await fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senderUsername: username, senderTag: tag, receiverId, message })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    await fetchChatMessages(receiverId, true);
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Mesaj gönderilemedi.');
+                }
+            } catch (err) {
+                console.error('Mesaj gönderme hatası:', err);
+            }
+        }
+
+        async function loadBlockedUsers() {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            if (!username || !tag) return;
+
+            try {
+                const response = await fetch(`/api/friends/blocked/${username}/${tag}`);
+                const data = await response.json();
+                const panelBox = document.querySelector('.panel-box');
+                
+                if (response.ok) {
+                    if (!data.blocked || data.blocked.length === 0) {
+                        panelBox.innerHTML = `
+                            <div class="panel-title" id="panelTitle">Engellenenler Listesi</div>
+                            <p style="color: #64748b; font-size: 14px;">Engellenmiş kimse bulunmuyor.</p>
+                        `;
+                        return;
+                    }
+
+                    let html = `
+                        <div class="panel-title" id="panelTitle">Engellenenler Listesi</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;" id="blockedListContainer">
+                    `;
+                    
+                    data.blocked.forEach(b => {
+                        html += `
+                            <div id="blocked-row-${b.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <div>
+                                    <span style="font-weight: 600; color: #1e293b;">${b.username}</span>
+                                    <span style="color: #94a3b8; font-size: 12px;">#${b.tag}</span>
+                                </div>
+                                <button onclick="unblockUser(${b.id})" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Engeli Kaldır</button>
                             </div>
                         `;
                     });
@@ -579,6 +736,58 @@
                 }
             } catch (err) {
                 console.error(err);
+            }
+        }
+
+        async function blockFriend(friendId) {
+            if (!confirm("Bu kullanıcıyı engellemek istediğine emin misin kanka?")) return;
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            try {
+                const response = await fetch('/api/friends/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, tag, friendId })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Kullanıcı başarıyla engellendi!");
+                    loadAcceptedFriends();
+                } else {
+                    alert(data.error || "Engelleme başarısız oldu.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Bağlantı hatası oluştu.");
+            }
+        }
+
+        async function unblockUser(friendId) {
+            if (!confirm("Bu kullanıcının engelini kaldırmak istediğine emin misin kanka?")) return;
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            try {
+                const response = await fetch('/api/friends/unblock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, tag, friendId })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Kullanıcının engeli kaldırıldı!");
+                    loadBlockedUsers();
+                } else {
+                    alert(data.error || "İşlem başarısız oldu.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Bağlantı hatası oluştu.");
             }
         }
 

@@ -140,7 +140,7 @@ router.post('/remove', async (req, res) => {
         }
         const userId = userResult.rows[0].id;
 
-        const deleteResult = await pool.query(
+        await pool.query(
             `DELETE FROM friend_requests 
              WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)`,
             [userId, friendId]
@@ -165,6 +165,94 @@ router.post('/update-status', async (req, res) => {
         res.json({ message: 'Durum güncellendi.' });
     } catch (err) {
         console.error('Durum güncelleme hatası:', err);
+        res.status(500).json({ error: 'Sunucu hatası oluştu.' });
+    }
+});
+
+// 7. Kullanıcıyı Engelleme Rotası
+router.post('/block', async (req, res) => {
+    const { username, tag, friendId } = req.body;
+
+    try {
+        const userResult = await pool.query('SELECT id FROM users WHERE username = $1 AND tag = $2', [username, tag]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+        }
+        const userId = userResult.rows[0].id;
+
+        if (userId === parseInt(friendId)) {
+            return res.status(400).json({ error: 'Kendini engelleyemezsin!' });
+        }
+
+        const existing = await pool.query(
+            'SELECT * FROM friend_requests WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)',
+            [userId, friendId]
+        );
+
+        if (existing.rows.length > 0) {
+            await pool.query(
+                'UPDATE friend_requests SET status = $1 WHERE (sender_id = $2 AND receiver_id = $3) OR (sender_id = $3 AND receiver_id = $2)',
+                ['blocked', userId, friendId]
+            );
+        } else {
+            await pool.query(
+                'INSERT INTO friend_requests (sender_id, receiver_id, status) VALUES ($1, $2, $3)',
+                [userId, friendId, 'blocked']
+            );
+        }
+
+        res.json({ message: 'Kullanıcı engellendi.' });
+    } catch (err) {
+        console.error('Engelleme hatası:', err);
+        res.status(500).json({ error: 'Sunucu hatası oluştu.' });
+    }
+});
+
+// 8. Engeli Kaldırma Rotası
+router.post('/unblock', async (req, res) => {
+    const { username, tag, friendId } = req.body;
+
+    try {
+        const userResult = await pool.query('SELECT id FROM users WHERE username = $1 AND tag = $2', [username, tag]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+        }
+        const userId = userResult.rows[0].id;
+
+        await pool.query(
+            'DELETE FROM friend_requests WHERE status = $1 AND ((sender_id = $2 AND receiver_id = $3) OR (sender_id = $3 AND receiver_id = $2))',
+            ['blocked', userId, friendId]
+        );
+
+        res.json({ message: 'Kullanıcının engeli kaldırıldı.' });
+    } catch (err) {
+        console.error('Engeli kaldırma hatası:', err);
+        res.status(500).json({ error: 'Sunucu hatası oluştu.' });
+    }
+});
+
+// 9. 🚀 Eksik Olan: Engellenenleri Listeleme Rotası
+router.get('/blocked/:username/:tag', async (req, res) => {
+    const { username, tag } = req.params;
+
+    try {
+        const userResult = await pool.query('SELECT id FROM users WHERE username = $1 AND tag = $2', [username, tag]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+        }
+        const userId = userResult.rows[0].id;
+
+        const blockedUsers = await pool.query(
+            `SELECT u.id, u.username, u.tag 
+             FROM friend_requests fr 
+             JOIN users u ON (CASE WHEN fr.sender_id = $1 THEN fr.receiver_id ELSE fr.sender_id END) = u.id 
+             WHERE (fr.sender_id = $1 OR fr.receiver_id = $1) AND fr.status = 'blocked'`,
+            [userId]
+        );
+
+        res.json({ blocked: blockedUsers.rows });
+    } catch (err) {
+        console.error('Engellenenleri getirme hatası:', err);
         res.status(500).json({ error: 'Sunucu hatası oluştu.' });
     }
 });

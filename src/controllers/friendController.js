@@ -85,3 +85,53 @@ exports.respondToRequest = async (req, res) => {
         res.status(500).json({ message: 'Sunucu hatası.' });
     }
 };
+
+// Kullanıcıyı Engelle
+exports.blockUser = async (req, res) => {
+    const { userId, targetId } = req.body; // İşlemi yapan ve engellenecek kullanıcı ID'leri
+
+    try {
+        if (userId === targetId) {
+            return res.status(400).json({ message: 'Kendini engelleyemezsin kanka!' });
+        }
+
+        const existing = await pool.query(
+            'SELECT * FROM friend_requests WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)',
+            [userId, targetId]
+        );
+
+        if (existing.rows.length > 0) {
+            await pool.query(
+                'UPDATE friend_requests SET status = $1 WHERE (sender_id = $2 AND receiver_id = $3) OR (sender_id = $3 AND receiver_id = $2)',
+                ['blocked', userId, targetId]
+            );
+        } else {
+            await pool.query(
+                'INSERT INTO friend_requests (sender_id, receiver_id, status) VALUES ($1, $2, $3)',
+                [userId, targetId, 'blocked']
+            );
+        }
+
+        res.status(200).json({ message: 'Kullanıcı başarıyla engellendi.' });
+    } catch (err) {
+        console.error('Engelleme hatası:', err);
+        res.status(500).json({ message: 'Sunucu hatası.' });
+    }
+};
+
+// Engeli Kaldır
+exports.unblockUser = async (req, res) => {
+    const { userId, targetId } = req.body;
+
+    try {
+        await pool.query(
+            'DELETE FROM friend_requests WHERE status = $1 AND ((sender_id = $2 AND receiver_id = $3) OR (sender_id = $3 AND receiver_id = $2))',
+            ['blocked', userId, targetId]
+        );
+
+        res.status(200).json({ message: 'Kullanıcının engeli kaldırıldı.' });
+    } catch (err) {
+        console.error('Engeli kaldırma hatası:', err);
+        res.status(500).json({ message: 'Sunucu hatası.' });
+    }
+};
