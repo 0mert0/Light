@@ -3,87 +3,604 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Light - Kayıt Ol</title>
+    <title>Light - Ana Menü</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+        }
+
+        body {
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
+            background-color: #f4f6f9;
+            color: #333;
+            overflow: hidden;
         }
-        .auth-card {
+
+        .sidebar {
+            width: 250px;
             background-color: #ffffff;
-            padding: 35px;
-            border-radius: 12px;
-            width: 380px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        h2 { color: #111827; text-align: center; margin-bottom: 24px; font-size: 22px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #4b5563; margin-bottom: 6px; }
-        input { width: 100%; padding: 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937; box-sizing: border-box; outline: none; font-size: 14px; }
-        input:focus { border-color: #2563eb; background-color: #ffffff; }
-        .btn { width: 100%; background-color: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .btn:hover { background-color: #1d4ed8; }
-        .switch-link { text-align: center; margin-top: 20px; font-size: 14px; color: #4b5563; }
-        .switch-link a { color: #2563eb; text-decoration: none; font-weight: 600; }
-        .switch-link a:hover { text-decoration: underline; }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-brand {
+            padding: 20px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #007bff;
+            border-bottom: 1px solid #f1f5f9;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-link {
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: #ebf8ff;
+            color: #007bff;
+        }
+
+        .account-footer {
+            position: relative;
+            padding: 12px 16px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .account-info:hover {
+            background-color: #e2e8f0;
+        }
+
+        .account-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .account-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .account-name-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .account-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .account-tag {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .account-status-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+        }
+
+        .account-status-text {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .status-menu {
+            display: none;
+            position: absolute;
+            bottom: 75px;
+            left: 16px;
+            width: 200px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 100;
+            padding: 6px;
+        }
+
+        .status-menu.show {
+            display: block;
+        }
+
+        .status-option {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+            transition: background 0.15s;
+        }
+
+        .status-option:hover {
+            background-color: #f1f5f9;
+        }
+
+        .dot-online { background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; }
+        .dot-busy { background-color: #ef4444; width: 8px; height: 8px; border-radius: 50%; }
+        .dot-idle { background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; }
+        .dot-invisible { background-color: #94a3b8; width: 8px; height: 8px; border-radius: 50%; }
+
+        .account-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .logout-btn-text {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .logout-btn-text:hover {
+            background-color: #fee2e2;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f6f9;
+        }
+
+        .top-header {
+            height: 60px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .tab-btn.active {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .tab-btn.add-btn {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .tab-btn.add-btn:hover {
+            background-color: #059669;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .panel-box {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="auth-card">
-        <h2>Light'a Hesap Oluştur</h2>
-        <form id="register-form">
-            <div class="form-group">
-                <label>E-posta Adresi</label>
-                <input type="email" id="email" required autocomplete="off">
+
+    <div class="sidebar">
+        <div class="sidebar-top">
+            <div class="app-brand">LIGHT</div>
+            <div class="nav-menu">
+                <div class="nav-link active">🏠 Ana Sayfa</div>
+                <div class="nav-link">💬 Mesajlar</div>
             </div>
-            <div class="form-group">
-                <label>Kullanıcı Adı</label>
-                <input type="text" id="username" required autocomplete="off">
+        </div>
+
+        <div class="account-footer">
+            <div class="status-menu" id="statusMenu">
+                <div class="status-option" onclick="setStatus('Çevrim İçi', '#10b981')"><div class="dot-online"></div> Çevrim İçi</div>
+                <div class="status-option" onclick="setStatus('Meşgul', '#ef4444')"><div class="dot-busy"></div> Meşgul</div>
+                <div class="status-option" onclick="setStatus('Rahatsız Etmeyin', '#f59e0b')"><div class="dot-idle"></div> Rahatsız Etmeyin</div>
+                <div class="status-option" onclick="setStatus('Görünmez', '#94a3b8')"><div class="dot-invisible"></div> Görünmez</div>
             </div>
-            <div class="form-group">
-                <label>Şifre</label>
-                <input type="password" id="password" required>
+
+            <div class="account-info" id="statusToggleBtn" title="Durumu Değiştir">
+                <div class="account-avatar" id="accountAvatar">M</div>
+                <div class="account-details">
+                    <div class="account-name-wrapper">
+                        <span class="account-name" id="accountName">Kullanıcı</span>
+                        <span class="account-tag" id="accountTag">#0000</span>
+                    </div>
+                    <div class="account-status-container">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span class="account-status-text" id="statusText">Çevrim İçi</span>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn">Kayıt Ol</button>
-        </form>
-        <div class="switch-link">
-            Zaten hesabın var mı? <a href="/">Giriş Yap</a>
+
+            <div class="account-actions">
+                <button class="icon-btn" title="Ayarlar" id="settingsBtn">⚙️</button>
+                <button class="logout-btn-text" id="logoutBtn">Çıkış</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="top-header">
+            <button class="tab-btn active" onclick="switchHeaderTab(this, 'Çevrim İçi')">Çevrim İçi</button>
+            <button class="tab-btn" onclick="switchHeaderTab(this, 'Hepsi')">Hepsi</button>
+            <button class="tab-btn" onclick="switchHeaderTab(this, 'Arkadaşlar')">Arkadaşlar</button>
+            <button class="tab-btn" onclick="switchHeaderTab(this, 'Bekleyenler')">Bekleyenler</button>
+            <button class="tab-btn" onclick="switchHeaderTab(this, 'Engellenenler')">Engellenenler</button>
+            <button class="tab-btn add-btn" onclick="openAddFriendModal()">+ Arkadaş Ekle</button>
+        </div>
+
+        <div class="content-body">
+            <div class="panel-box">
+                <div class="panel-title" id="panelTitle">Çevrim İçi Listesi</div>
+                <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('register-form');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            if (username) {
+                document.getElementById('accountName').textContent = username;
+                document.getElementById('accountAvatar').textContent = username.charAt(0).toUpperCase();
+            }
+
+            if (tag) {
+                document.getElementById('accountTag').textContent = '#' + tag;
+            }
+
+            // İlk açılışta arkadaş listesini yükle
+            loadAcceptedFriends();
+
+            // 🚀 F5 atmaya gerek kalmadan her 3 saniyede bir listeyi otomatik güncelle
+            setInterval(() => {
+                const activeTab = document.querySelector('.top-header .tab-btn.active');
+                if (activeTab) {
+                    const tabText = activeTab.textContent.trim();
+                    if (tabText === 'Arkadaşlar' || tabText === 'Hepsi' || tabText === 'Çevrim İçi') {
+                        loadAcceptedFriends();
+                    } else if (tabText === 'Bekleyenler') {
+                        loadPendingRequests();
+                    }
+                }
+            }, 3000);
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = '/';
+            });
+
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                alert('Ayarlar yakında eklenecek!');
+            });
+
+            const statusToggleBtn = document.getElementById('statusToggleBtn');
+            const statusMenu = document.getElementById('statusMenu');
+
+            statusToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                statusMenu.classList.toggle('show');
+            });
+
+            window.addEventListener('click', () => {
+                statusMenu.classList.remove('show');
+            });
+        });
+
+        async function setStatus(statusName, colorHex) {
+            document.getElementById('statusText').textContent = statusName;
+            document.getElementById('statusDot').style.backgroundColor = colorHex;
+            document.getElementById('statusMenu').classList.remove('show');
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            if (!username || !tag) return;
 
             try {
-                const response = await fetch('/api/auth/register', {
+                await fetch('/api/friends/update-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, username, password })
+                    body: JSON.stringify({ username, tag, status: statusName })
                 });
+            } catch (err) {
+                console.error('Durum güncellenirken hata oluştu:', err);
+            }
+        }
+
+        function switchHeaderTab(element, title) {
+            document.querySelectorAll('.top-header .tab-btn').forEach(btn => {
+                if (!btn.classList.contains('add-btn')) btn.classList.remove('active');
+            });
+            if (!element.classList.contains('add-btn')) {
+                element.classList.add('active');
+            }
+            document.getElementById('panelTitle').textContent = title + ' Listesi';
+
+            if (title === 'Bekleyenler') {
+                loadPendingRequests();
+            } else if (title === 'Arkadaşlar' || title === 'Hepsi') {
+                loadAcceptedFriends();
+            } else {
+                document.querySelector('.panel-box').innerHTML = `
+                    <div class="panel-title" id="panelTitle">${title} Listesi</div>
+                    <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>
+                `;
+            }
+        }
+
+        async function loadPendingRequests() {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            if (!username || !tag) return;
+
+            try {
+                const response = await fetch(`/api/friends/pending/${username}/${tag}`);
                 const data = await response.json();
+                const panelBox = document.querySelector('.panel-box');
                 
                 if (response.ok) {
-                    alert('Kayıt başarılı! Giriş sayfasına yönlendiriliyorsun.');
-                    window.location.href = '/';
-                } else {
-                    alert(data.message || 'Kayıt başarısız!');
+                    if (!data.requests || data.requests.length === 0) {
+                        panelBox.innerHTML = `
+                            <div class="panel-title" id="panelTitle">Bekleyenler Listesi</div>
+                            <p style="color: #64748b; font-size: 14px;">Şu anda bekleyen arkadaşlık isteği bulunmuyor.</p>
+                        `;
+                        return;
+                    }
+
+                    let html = `
+                        <div class="panel-title" id="panelTitle">Bekleyenler Listesi</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                    `;
+                    data.requests.forEach(req => {
+                        html += `
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <div>
+                                    <span style="font-weight: 600; color: #1e293b;">${req.username}</span>
+                                    <span style="color: #94a3b8; font-size: 12px;">#${req.tag}</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="respondRequest(${req.id}, 'accept')" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Kabul Et</button>
+                                    <button onclick="respondRequest(${req.id}, 'reject')" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Reddet</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    panelBox.innerHTML = html;
                 }
             } catch (err) {
-                alert('Sunucu hatası oluştu.');
+                console.error(err);
             }
-        });
+        }
+
+        async function loadAcceptedFriends() {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            if (!username || !tag) return;
+
+            try {
+                const response = await fetch(`/api/friends/list/${username}/${tag}`);
+                const data = await response.json();
+                const panelBox = document.querySelector('.panel-box');
+                
+                if (response.ok) {
+                    if (!data.friends || data.friends.length === 0) {
+                        panelBox.innerHTML = `
+                            <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
+                            <p style="color: #64748b; font-size: 14px;">Henüz ekli bir arkadaşın bulunmuyor.</p>
+                        `;
+                        return;
+                    }
+
+                    let html = `
+                        <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;" id="friendsListContainer">
+                    `;
+                    
+                    data.friends.forEach(f => {
+                        let statusColor = '#10b981'; // Çevrim İçi (Yeşil)
+                        if (f.status === 'Meşgul') statusColor = '#ef4444'; // Kırmızı
+                        else if (f.status === 'Rahatsız Etmeyin') statusColor = '#f59e0b'; // Turuncu
+                        else if (f.status === 'Görünmez') statusColor = '#94a3b8'; // Gri
+
+                        html += `
+                            <div id="friend-row-${f.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor};" title="${f.status || 'Çevrim İçi'}"></div>
+                                    <div>
+                                        <span style="font-weight: 600; color: #1e293b;">${f.username}</span>
+                                        <span style="color: #94a3b8; font-size: 12px;">#${f.tag}</span>
+                                    </div>
+                                </div>
+                                <button onclick="removeFriend(${f.id})" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Arkadaşlıktan Çıkart</button>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    panelBox.innerHTML = html;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function removeFriend(friendId) {
+            if (!confirm("Bu kişiyi arkadaşlıktan çıkarmak istediğine emin misin?")) return;
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            try {
+                const response = await fetch('/api/friends/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, tag, friendId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const row = document.getElementById(`friend-row-${friendId}`);
+                    if (row) row.remove();
+
+                    const container = document.getElementById('friendsListContainer');
+                    if (container && container.children.length === 0) {
+                        document.querySelector('.panel-box').innerHTML = `
+                            <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
+                            <p style="color: #64748b; font-size: 14px;">Henüz ekli bir arkadaşın bulunmuyor.</p>
+                        `;
+                    }
+                } else {
+                    alert(data.error || 'İşlem başarısız oldu.');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function respondRequest(requestId, action) {
+            try {
+                const response = await fetch('/api/friends/respond', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requestId, action })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    loadPendingRequests();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
     </script>
+    <script src="friends-modal.js"></script>
 </body>
 </html>

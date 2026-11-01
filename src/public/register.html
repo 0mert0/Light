@@ -6,62 +6,74 @@
     <title>Light - Kayıt Ol</title>
     <style>
         body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
-        .auth-card {
-            background-color: #ffffff;
-            padding: 35px;
-            border-radius: 12px;
-            width: 380px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 350px;
         }
-        h2 { color: #111827; text-align: center; margin-bottom: 24px; font-size: 22px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #4b5563; margin-bottom: 6px; }
-        input { width: 100%; padding: 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937; box-sizing: border-box; outline: none; font-size: 14px; }
-        input:focus { border-color: #2563eb; background-color: #ffffff; }
-        .btn { width: 100%; background-color: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .btn:hover { background-color: #1d4ed8; }
-        .switch-link { text-align: center; margin-top: 20px; font-size: 14px; color: #4b5563; }
-        .switch-link a { color: #2563eb; text-decoration: none; font-weight: 600; }
-        .switch-link a:hover { text-decoration: underline; }
+        h2 { text-align: center; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+        .link { text-align: center; margin-top: 15px; font-size: 14px; }
+        .link a { color: #007bff; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="auth-card">
+
+    <div class="container">
         <h2>Light'a Hesap Oluştur</h2>
-        <form id="register-form">
+        <form id="registerForm">
             <div class="form-group">
-                <label>E-posta Adresi</label>
-                <input type="email" id="email" required autocomplete="off">
+                <label>E-POSTA ADRESİ</label>
+                <input type="email" id="email" required>
             </div>
             <div class="form-group">
-                <label>Kullanıcı Adı</label>
-                <input type="text" id="username" required autocomplete="off">
+                <label>KULLANICI ADI</label>
+                <input type="text" id="username" required>
             </div>
             <div class="form-group">
-                <label>Şifre</label>
+                <label>ŞİFRE</label>
                 <input type="password" id="password" required>
             </div>
-            <button type="submit" class="btn">Kayıt Ol</button>
+            <button type="submit">Kayıt Ol</button>
         </form>
-        <div class="switch-link">
+        <div class="link">
             Zaten hesabın var mı? <a href="/">Giriş Yap</a>
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('register-form');
-        form.addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
             const email = document.getElementById('email').value;
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -72,18 +84,21 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, username, password })
                 });
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
-                    alert('Kayıt başarılı! Giriş sayfasına yönlendiriliyorsun.');
+                    alert('Kayıt başarıyla oluşturuldu! Giriş sayfasına yönlendiriliyorsunuz.');
                     window.location.href = '/';
                 } else {
-                    alert(data.message || 'Kayıt başarısız!');
+                    alert(data.error || 'Kayıt olurken bir hata oluştu.');
                 }
             } catch (err) {
-                alert('Sunucu hatası oluştu.');
+                console.error('Hata:', err);
+                alert('Sunucuya bağlanılamadı.');
             }
         });
     </script>
+
 </body>
 </html>

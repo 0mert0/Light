@@ -1,0 +1,283 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f6f9;
+    color: #333;
+    overflow: hidden;
+}
+
+/* Sol Panel */
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+}
+
+.app-brand {
+    padding: 20px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #007bff;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: 1px;
+}
+
+.nav-menu {
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-link {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #ebf8ff;
+    color: #007bff;
+}
+
+/* Alt Hesap Paneli */
+.account-footer {
+    position: relative;
+    padding: 12px 16px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.account-info:hover {
+    background-color: #e2e8f0;
+}
+
+.account-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.account-status-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+}
+
+.account-status-text {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Durum Seçim Pop-up Menüsü */
+.status-menu {
+    display: none;
+    position: absolute;
+    bottom: 75px;
+    left: 16px;
+    width: 200px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+    padding: 6px;
+}
+
+.status-menu.show {
+    display: block;
+}
+
+.status-option {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    transition: background 0.15s;
+}
+
+.status-option:hover {
+    background-color: #f1f5f9;
+}
+
+.dot-online { background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; }
+.dot-busy { background-color: #ef4444; width: 8px; height: 8px; border-radius: 50%; }
+.dot-idle { background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; }
+.dot-invisible { background-color: #94a3b8; width: 8px; height: 8px; border-radius: 50%; }
+
+.account-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+.logout-btn-text {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.logout-btn-text:hover {
+    background-color: #fee2e2;
+}
+
+/* Sağ İçerik Alanı */
+.main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f6f9;
+}
+
+.top-header {
+    height: 60px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    gap: 10px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.tab-btn.active {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+
+.tab-btn.add-btn {
+    background-color: #10b981;
+    color: white;
+}
+
+.tab-btn.add-btn:hover {
+    background-color: #059669;
+}
+
+.content-body {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.panel-box {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 25px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.panel-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 15px;
+}

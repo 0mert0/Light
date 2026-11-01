@@ -1,33 +1,77 @@
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-const SECRET_KEY = process.env.JWT_SECRET || "light_secret_key_cok_gizli";
 
 exports.register = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
+
     try {
+        // Rastgele 4 haneli tag üret (Örn: #4819)
+        const tag = Math.floor(1000 + Math.random() * 9000).toString();
+
+        // Şifreyi güvenli bir şekilde hashle
         const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hashedPassword]);
-        res.status(201).json({ message: 'Kayıt başarılı! Şimdi giriş yapabilirsin.' });
+
+        // Veritabanına kaydet
+        const newUser = await pool.query(
+            'INSERT INTO users (username, tag, email, password) VALUES ($1, $2, $3, $4) RETURNING id, username, tag, email',
+            [username, tag, email, hashedPassword]
+        );
+
+        res.status(201).json({
+            message: 'Kayıt başarılı!',
+            user: newUser.rows[0]
+        });
     } catch (err) {
-        res.status(400).json({ message: 'Bu kullanıcı adı zaten alınmış.' });
+        console.error('Kayıt hatası:', err);
+        
+        // PostgreSQL benzersizlik (unique) kısıtlaması hatası (code: 23505)
+        if (err.code === '23505') {
+            return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanımda!' });
+        }
+
+        res.status(500).json({ message: 'Sunucu hatası, kayıt oluşturulamadı.' });
     }
 };
 
 exports.login = async (req, res) => {
-    const { username, password } = req.body;
+    // Frontend'den hangi isimle gelirse gelsin yakala (email, username veya loginIdentifier)
+    const loginIdentifier = req.body.loginIdentifier || req.body.email || req.body.username;
+    const { password } = req.body;
+
     try {
-        const userResult = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-        if (userResult.rows.length === 0) return res.status(400).json({ message: 'Kullanıcı bulunamadı.' });
+        if (!loginIdentifier || !password) {
+            return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
+        }
 
-        const user = userResult.rows[0];
+        // Kullanıcıyı e-posta veya kullanıcı adına göre bul
+        const userQuery = await pool.query(
+            'SELECT * FROM users WHERE email = $1 OR username = $2',
+            [loginIdentifier, loginIdentifier]
+        );
+
+        if (userQuery.rows.length === 0) {
+            return res.status(400).json({ message: 'Kullanıcı bulunamadı!' });
+        }
+
+        const user = userQuery.rows[0];
+
+        // Şifreyi doğrula
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Şifre hatalı!' });
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Şifre hatalı!' });
+        }
 
-        const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ message: 'Giriş başarılı!', token });
+        res.status(200).json({
+            message: 'Giriş başarılı!',
+            user: {
+                id: user.id,
+                username: user.username,
+                tag: user.tag,
+                email: user.email
+            }
+        });
     } catch (err) {
-        res.status(500).json({ message: 'Sunucu hatası.' });
+        console.error('Giriş hatası:', err);
+        res.status(500).json({ message: 'Sunucu hatası, giriş yapılamadı.' });
     }
 };

@@ -6,79 +6,109 @@
     <title>Light - Giriş Yap</title>
     <style>
         body {
-            margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background-color: #f4f6f9;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
-        .auth-card {
-            background-color: #ffffff;
+        .container {
+            background: white;
             padding: 35px;
             border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             width: 380px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e2e8f0;
         }
-        h2 { color: #111827; text-align: center; margin-bottom: 24px; font-size: 22px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #4b5563; margin-bottom: 6px; }
-        input { width: 100%; padding: 12px; background-color: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937; box-sizing: border-box; outline: none; font-size: 14px; }
-        input:focus { border-color: #2563eb; background-color: #ffffff; }
-        .btn { width: 100%; background-color: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        .btn:hover { background-color: #1d4ed8; }
-        .switch-link { text-align: center; margin-top: 20px; font-size: 14px; color: #4b5563; }
-        .switch-link a { color: #2563eb; text-decoration: none; font-weight: 600; }
-        .switch-link a:hover { text-decoration: underline; }
+        h2 { text-align: center; color: #1e293b; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #64748b; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #0056b3; }
+        .link { text-align: center; margin-top: 20px; font-size: 14px; color: #64748b; }
+        .link a { color: #007bff; text-decoration: none; font-weight: 600; }
+        .link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-    <div class="auth-card">
+
+    <div class="container">
         <h2>Light'a Tekrar Hoş Geldin</h2>
-        <form id="login-form">
+        <form id="loginForm">
             <div class="form-group">
-                <label>Kullanıcı Adı veya E-posta</label>
-                <input type="text" id="loginIdentifier" required autocomplete="off">
+                <label>KULLANICI ADI VEYA E-POSTA</label>
+                <input type="text" id="email" required placeholder="E-posta veya kullanıcı adını gir">
             </div>
             <div class="form-group">
-                <label>Şifre</label>
-                <input type="password" id="password" required>
+                <label>ŞİFRE</label>
+                <input type="password" id="password" required placeholder="Şifreni gir">
             </div>
-            <button type="submit" class="btn">Giriş Yap</button>
+            <button type="submit">Giriş Yap</button>
         </form>
-        <div class="switch-link">
-            Hesabın yok mu? <a href="/register.html">Kayıt Ol</a>
+        <div class="link">
+            Hesabın yok mu? <a href="register.html">Kayıt Ol</a>
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('login-form');
-        form.addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const loginIdentifier = document.getElementById('loginIdentifier').value;
-            const password = document.getElementById('password').value;
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
 
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ loginIdentifier, password })
+                    body: JSON.stringify({ email, password })
                 });
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    window.location.href = '/chat.html';
+                    // Kullanıcı bilgilerini localStorage'a kaydediyoruz
+                    if (data.user) {
+                        localStorage.setItem('light_username', data.user.username);
+                        localStorage.setItem('light_tag', data.user.tag);
+                    }
+                    
+                    window.location.href = 'chat.html';
                 } else {
-                    alert(data.message || 'Giriş başarısız!');
+                    alert(data.message || 'Giriş yapılırken bir hata oluştu.');
                 }
             } catch (err) {
-                alert('Sunucu hatası oluştu.');
+                console.error('Hata:', err);
+                alert('Sunucuya bağlanılamadı.');
             }
         });
     </script>
+
 </body>
 </html>
