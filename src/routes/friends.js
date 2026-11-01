@@ -256,5 +256,49 @@ router.get('/blocked/:username/:tag', async (req, res) => {
         res.status(500).json({ error: 'Sunucu hatası oluştu.' });
     }
 });
+// Kullanıcı Bilgilerini Güncelleme (İsim ve Profil Fotoğrafı)
+router.post('/update-profile', async (req, res) => {
+    const { currentUsername, currentTag, newUsername, newAvatar } = req.body;
 
+    try {
+        // Yeni kullanıcı adı çakışmasını kontrol et (Aynı tag ile aynı isimde başka biri var mı?)
+        if (newUsername) {
+            const checkUser = await pool.query(
+                'SELECT id FROM users WHERE username = $1 AND tag = $2 AND NOT (username = $3 AND tag = $4)',
+                [newUsername, currentTag, currentUsername, currentTag]
+            );
+            if (checkUser.rows.length > 0) {
+                return res.status(400).json({ error: 'Bu kullanıcı adı ve etiket kombinasyonu zaten kullanımda.' });
+            }
+        }
+
+        // Güncelleme sorgusu
+        let query = 'UPDATE users SET ';
+        let values = [];
+        let index = 1;
+
+        if (newUsername) {
+            query += `username = $${index++}`;
+            values.push(newUsername);
+        }
+        if (newAvatar !== undefined) {
+            if (newUsername) query += ', ';
+            query += `avatar = $${index++}`;
+            values.push(newAvatar);
+        }
+
+        query += ` WHERE username = $${index++} AND tag = $${index++} RETURNING *;`;
+        values.push(currentUsername, currentTag);
+
+        const updated = await pool.query(query, values);
+        if (updated.rows.length === 0) {
+            return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+        }
+
+        res.json({ success: true, user: updated.rows[0] });
+    } catch (err) {
+        console.error('Profil güncelleme hatası:', err);
+        res.status(500).json({ error: 'Sunucu hatası oluştu.' });
+    }
+});
 module.exports = router;

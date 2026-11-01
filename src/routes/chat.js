@@ -7,30 +7,30 @@ router.post('/send', async (req, res) => {
     const { senderUsername, senderTag, receiverId, message } = req.body;
 
     try {
-        if (!message || !message.trim()) {
-            return res.status(400).json({ error: 'Boş mesaj gönderilemez.' });
+        const senderResult = await pool.query(
+            'SELECT id FROM users WHERE username = $1 AND tag = $2',
+            [senderUsername, senderTag]
+        );
+
+        if (senderResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Gönderen kullanıcı bulunamadı.' });
         }
 
-        const senderResult = await pool.query('SELECT id FROM users WHERE username = $1 AND tag = $2', [senderUsername, senderTag]);
-        if (senderResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Gönderen bulunamadı.' });
-        }
-        
         const senderId = senderResult.rows[0].id;
 
-        await pool.query(
-            'INSERT INTO messages (sender_id, receiver_id, message) VALUES ($1, $2, $3)',
+        const newMessage = await pool.query(
+            'INSERT INTO messages (sender_id, receiver_id, message) VALUES ($1, $2, $3) RETURNING *',
             [senderId, receiverId, message]
         );
 
-        res.json({ success: true });
+        res.status(201).json({ success: true, message: newMessage.rows[0] });
     } catch (err) {
         console.error('Mesaj gönderme hatası:', err);
-        res.status(500).json({ error: 'Sunucu hatası.' });
+        res.status(500).json({ error: 'Sunucu hatası: ' + err.message });
     }
 });
 
-// Mesaj Geçmişini Çekme Rotası
+// Mesaj Geçmişini ve Gönderen Bilgilerini Çekme Rotası
 router.get('/history/:username/:tag/:friendId', async (req, res) => {
     const { username, tag, friendId } = req.params;
 
@@ -41,9 +41,11 @@ router.get('/history/:username/:tag/:friendId', async (req, res) => {
         const myId = userResult.rows[0].id;
 
         const messages = await pool.query(
-            `SELECT * FROM messages 
-             WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1) 
-             ORDER BY created_at ASC`,
+            `SELECT m.*, u.username as sender_name, u.avatar as sender_avatar 
+             FROM messages m
+             JOIN users u ON m.sender_id = u.id
+             WHERE (m.sender_id = $1 AND m.receiver_id = $2) OR (m.sender_id = $2 AND m.receiver_id = $1) 
+             ORDER BY m.created_at ASC`,
             [myId, friendId]
         );
         res.json({ messages: messages.rows, myId });

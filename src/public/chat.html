@@ -87,6 +87,8 @@
             padding: 4px;
             border-radius: 6px;
             transition: background 0.2s;
+            flex: 1;
+            overflow: hidden;
         }
 
         .account-info:hover {
@@ -104,11 +106,20 @@
             justify-content: center;
             font-weight: bold;
             font-size: 15px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .account-details {
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .account-name-wrapper {
@@ -121,6 +132,9 @@
             font-size: 14px;
             font-weight: 600;
             color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .account-tag {
@@ -129,88 +143,10 @@
             font-weight: 400;
         }
 
-        .account-status-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 2px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #10b981;
-        }
-
-        .account-status-text {
-            font-size: 11px;
-            color: #64748b;
-        }
-
-        .status-menu {
-            display: none;
-            position: absolute;
-            bottom: 75px;
-            left: 16px;
-            width: 200px;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 100;
-            padding: 6px;
-        }
-
-        .status-menu.show {
-            display: block;
-        }
-
-        .status-option {
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #333;
-            transition: background 0.15s;
-        }
-
-        .status-option:hover {
-            background-color: #f1f5f9;
-        }
-
-        .dot-online { background-color: #10b981; width: 8px; height: 8px; border-radius: 50%; }
-        .dot-busy { background-color: #ef4444; width: 8px; height: 8px; border-radius: 50%; }
-        .dot-idle { background-color: #f59e0b; width: 8px; height: 8px; border-radius: 50%; }
-        .dot-invisible { background-color: #94a3b8; width: 8px; height: 8px; border-radius: 50%; }
-
         .account-actions {
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: #64748b;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 6px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .icon-btn:hover {
-            background-color: #e2e8f0;
-            color: #1e293b;
         }
 
         .logout-btn-text {
@@ -271,6 +207,7 @@
         .tab-btn.add-btn {
             background-color: #10b981;
             color: white;
+            margin-left: auto;
         }
 
         .tab-btn.add-btn:hover {
@@ -281,6 +218,8 @@
             flex: 1;
             padding: 30px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .panel-box {
@@ -289,6 +228,9 @@
             border: 1px solid #e2e8f0;
             padding: 25px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .panel-title {
@@ -296,6 +238,115 @@
             font-weight: bold;
             color: #1e293b;
             margin-bottom: 15px;
+        }
+
+        /* Sohbet Alanı Tasarımı */
+        .chat-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Sağ / Sol Hizalama Sınıfları */
+        .msg-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+        .msg-row.my-message {
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+        }
+        .msg-row.other-message {
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .send-btn:hover { background: #0056b3; }
+
+        /* Ayarlar Modalı */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .settings-modal.show { display: flex; }
+        .settings-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .settings-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+        }
+        .settings-avatar-preview {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .settings-avatar-preview img {
+            width: 100%; height: 100%; object-fit: cover;
         }
     </style>
 </head>
@@ -306,34 +357,20 @@
             <div class="app-brand">LIGHT</div>
             <div class="nav-menu">
                 <div class="nav-link active">🏠 Ana Sayfa</div>
-                <div class="nav-link">💬 Mesajlar</div>
             </div>
         </div>
 
         <div class="account-footer">
-            <div class="status-menu" id="statusMenu">
-                <div class="status-option" onclick="setStatus('Çevrim İçi', '#10b981')"><div class="dot-online"></div> Çevrim İçi</div>
-                <div class="status-option" onclick="setStatus('Meşgul', '#ef4444')"><div class="dot-busy"></div> Meşgul</div>
-                <div class="status-option" onclick="setStatus('Rahatsız Etmeyin', '#f59e0b')"><div class="dot-idle"></div> Rahatsız Etmeyin</div>
-                <div class="status-option" onclick="setStatus('Görünmez', '#94a3b8')"><div class="dot-invisible"></div> Görünmez</div>
-            </div>
-
-            <div class="account-info" id="statusToggleBtn" title="Durumu Değiştir">
+            <div class="account-info" id="settingsBtn" title="Hesap Ayarları">
                 <div class="account-avatar" id="accountAvatar">M</div>
                 <div class="account-details">
                     <div class="account-name-wrapper">
                         <span class="account-name" id="accountName">Kullanıcı</span>
                         <span class="account-tag" id="accountTag">#0000</span>
                     </div>
-                    <div class="account-status-container">
-                        <div class="status-dot" id="statusDot"></div>
-                        <span class="account-status-text" id="statusText">Çevrim İçi</span>
-                    </div>
                 </div>
             </div>
-
             <div class="account-actions">
-                <button class="icon-btn" title="Ayarlar" id="settingsBtn">⚙️</button>
                 <button class="logout-btn-text" id="logoutBtn">Çıkış</button>
             </div>
         </div>
@@ -352,7 +389,32 @@
         <div class="content-body">
             <div class="panel-box">
                 <div class="panel-title" id="panelTitle">Çevrim İçi Listesi</div>
-                <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunvuyor.</p>
+                <div id="mainContentArea" style="flex: 1; display: flex; flex-direction: column;">
+                    <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ayarlar Modalı -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="panel-title">Hesap Ayarları</div>
+            <div class="settings-avatar-preview" id="modalAvatarPreview">M</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 13px; font-weight: 600; color: #64748b;">Kullanıcı Adı</label>
+                <input type="text" id="settingsUsernameInput" class="settings-input" />
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label style="font-size: 13px; font-weight: 600; color: #64748b;">Profil Fotoğrafı Seç (PNG/JPG)</label>
+                <input type="file" id="settingsAvatarFile" class="settings-input" accept="image/png, image/jpeg, image/jpg" onchange="previewLocalImage(this)" />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                <button onclick="closeSettingsModal()" style="padding: 8px 16px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">İptal</button>
+                <button onclick="saveSettings()" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Kaydet</button>
             </div>
         </div>
     </div>
@@ -364,25 +426,26 @@
         document.addEventListener('DOMContentLoaded', () => {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+            const avatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
 
             if (username) {
                 document.getElementById('accountName').textContent = username;
-                document.getElementById('accountAvatar').textContent = username.charAt(0).toUpperCase();
+                if (avatar && avatar.trim() !== '') {
+                    document.getElementById('accountAvatar').innerHTML = `<img src="${avatar}" />`;
+                } else {
+                    document.getElementById('accountAvatar').textContent = username.charAt(0).toUpperCase();
+                }
             }
 
             if (tag) {
                 document.getElementById('accountTag').textContent = '#' + tag;
             }
 
-            // İlk açılışta arkadaş listesini yükle
             loadAcceptedFriends();
 
-            // 🚀 F5 atmaya gerek kalmadan her 3 saniyede bir güncelle (Sohbette değilse)
             setInterval(() => {
                 const panelTitleText = document.getElementById('panelTitle').textContent;
-                if (panelTitleText.includes(' ile Sohbet')) {
-                    return; 
-                }
+                if (panelTitleText.includes(' ile Sohbet')) return; 
 
                 const activeTab = document.querySelector('.top-header .tab-btn.active');
                 if (activeTab) {
@@ -404,40 +467,89 @@
             });
 
             document.getElementById('settingsBtn').addEventListener('click', () => {
-                alert('Ayarlar yakında eklenecek!');
-            });
-
-            const statusToggleBtn = document.getElementById('statusToggleBtn');
-            const statusMenu = document.getElementById('statusMenu');
-
-            statusToggleBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                statusMenu.classList.toggle('show');
-            });
-
-            window.addEventListener('click', () => {
-                statusMenu.classList.remove('show');
+                const currUser = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+                const currAvatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
+                document.getElementById('settingsUsernameInput').value = currUser || '';
+                document.getElementById('settingsAvatarFile').value = ''; 
+                updateAvatarPreview(currAvatar, currUser);
+                document.getElementById('settingsModal').classList.add('show');
             });
         });
 
-        async function setStatus(statusName, colorHex) {
-            document.getElementById('statusText').textContent = statusName;
-            document.getElementById('statusDot').style.backgroundColor = colorHex;
-            document.getElementById('statusMenu').classList.remove('show');
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
 
-            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
-            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+        function updateAvatarPreview(avatarUrl, username) {
+            const preview = document.getElementById('modalAvatarPreview');
+            if (avatarUrl && avatarUrl.trim() !== '') {
+                preview.innerHTML = `<img src="${avatarUrl}" onerror="this.onerror=null; this.parentNode.innerHTML='${username ? username.charAt(0).toUpperCase() : 'M'}';" />`;
+            } else {
+                preview.textContent = username ? username.charAt(0).toUpperCase() : 'M';
+            }
+        }
 
-            if (!username || !tag) return;
+        function previewLocalImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('modalAvatarPreview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;" />`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function saveSettings() {
+            const currentUsername = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const currentTag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+            const newUsername = document.getElementById('settingsUsernameInput').value.trim();
+            const avatarFileInput = document.getElementById('settingsAvatarFile');
+
+            if (!newUsername) {
+                alert('Kullanıcı adı boş olamaz!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('currentUsername', currentUsername);
+            formData.append('currentTag', currentTag);
+            formData.append('newUsername', newUsername);
+            
+            if (avatarFileInput.files[0]) {
+                formData.append('avatarFile', avatarFileInput.files[0]);
+            }
 
             try {
-                await fetch('/api/friends/update-status', {
+                const response = await fetch('/api/auth/update-profile', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, tag, status: statusName })
+                    body: formData
                 });
+
+                const data = await response.json();
+                if (response.ok) {
+                    if (localStorage.getItem('light_username')) {
+                        localStorage.setItem('light_username', data.user.username);
+                        localStorage.setItem('light_avatar', data.user.avatar || '');
+                    } else {
+                        sessionStorage.setItem('light_username', data.user.username);
+                        sessionStorage.setItem('light_avatar', data.user.avatar || '');
+                    }
+
+                    document.getElementById('accountName').textContent = data.user.username;
+                    if (data.user.avatar) {
+                        document.getElementById('accountAvatar').innerHTML = `<img src="${data.user.avatar}" />`;
+                    } else {
+                        document.getElementById('accountAvatar').textContent = data.user.username.charAt(0).toUpperCase();
+                    }
+
+                    alert('Ayarlar başarıyla kaydedildi!');
+                    closeSettingsModal();
+                } else {
+                    alert(data.error || 'Güncelleme başarısız oldu.');
+                }
             } catch (err) {
-                console.error('Durum güncellenirken hata oluştu:', err);
+                console.error('Ayarlar kaydedilirken hata:', err);
+                alert('Bağlantı hatası oluştu.');
             }
         }
 
@@ -460,84 +572,27 @@
             } else if (title === 'Engellenenler') {
                 loadBlockedUsers();
             } else {
-                document.querySelector('.panel-box').innerHTML = `
-                    <div class="panel-title" id="panelTitle">${title} Listesi</div>
-                    <p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>
-                `;
-            }
-        }
-
-        async function loadPendingRequests() {
-            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
-            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
-
-            if (!username || !tag) return;
-
-            try {
-                const response = await fetch(`/api/friends/pending/${username}/${tag}`);
-                const data = await response.json();
-                const panelBox = document.querySelector('.panel-box');
-                
-                if (response.ok) {
-                    if (!data.requests || data.requests.length === 0) {
-                        panelBox.innerHTML = `
-                            <div class="panel-title" id="panelTitle">Bekleyenler Listesi</div>
-                            <p style="color: #64748b; font-size: 14px;">Şu anda bekleyen arkadaşlık isteği bulunmuyor.</p>
-                        `;
-                        return;
-                    }
-
-                    let html = `
-                        <div class="panel-title" id="panelTitle">Bekleyenler Listesi</div>
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                    `;
-                    data.requests.forEach(req => {
-                        html += `
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                <div>
-                                    <span style="font-weight: 600; color: #1e293b;">${req.username}</span>
-                                    <span style="color: #94a3b8; font-size: 12px;">#${req.tag}</span>
-                                </div>
-                                <div style="display: flex; gap: 8px;">
-                                    <button onclick="respondRequest(${req.id}, 'accept')" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Kabul Et</button>
-                                    <button onclick="respondRequest(${req.id}, 'reject')" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Reddet</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    html += `</div>`;
-                    panelBox.innerHTML = html;
-                }
-            } catch (err) {
-                console.error(err);
+                document.getElementById('mainContentArea').innerHTML = `<p style="color: #64748b; font-size: 14px;">Şu anda listelenecek başka bir hesap bulunmuyor.</p>`;
             }
         }
 
         async function loadAcceptedFriends() {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
-
             if (!username || !tag) return;
 
             try {
                 const response = await fetch(`/api/friends/list/${username}/${tag}`);
                 const data = await response.json();
-                const panelBox = document.querySelector('.panel-box');
+                const container = document.getElementById('mainContentArea');
                 
                 if (response.ok) {
                     if (!data.friends || data.friends.length === 0) {
-                        panelBox.innerHTML = `
-                            <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
-                            <p style="color: #64748b; font-size: 14px;">Henüz ekli bir arkadaşın bulunmuyor.</p>
-                        `;
+                        container.innerHTML = `<p style="color: #64748b; font-size: 14px;">Henüz ekli bir arkadaşın bulunmuyor.</p>`;
                         return;
                     }
 
-                    let html = `
-                        <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;" id="friendsListContainer">
-                    `;
-                    
+                    let html = `<div style="display: flex; flex-direction: column; gap: 10px;" id="friendsListContainer">`;
                     data.friends.forEach(f => {
                         let statusColor = '#10b981';
                         if (f.status === 'Meşgul') statusColor = '#ef4444';
@@ -547,7 +602,7 @@
                         html += `
                             <div id="friend-row-${f.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor};" title="${f.status || 'Çevrim İçi'}"></div>
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor};"></div>
                                     <div>
                                         <span style="font-weight: 600; color: #1e293b;">${f.username}</span>
                                         <span style="color: #94a3b8; font-size: 12px;">#${f.tag}</span>
@@ -555,33 +610,33 @@
                                 </div>
                                 <div style="display: flex; gap: 8px;">
                                     <button onclick="openDirectMessage(${f.id}, '${f.username}')" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Mesaj</button>
-                                    <button onclick="removeFriend(${f.id})" style="padding: 6px 12px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Arkadaşlıktan Çıkart</button>
+                                    <button onclick="removeFriend(${f.id})" style="padding: 6px 12px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Çıkart</button>
                                     <button onclick="blockFriend(${f.id})" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px;">Engelle</button>
                                 </div>
                             </div>
                         `;
                     });
                     html += `</div>`;
-                    panelBox.innerHTML = html;
+                    container.innerHTML = html;
                 }
             } catch (err) {
                 console.error(err);
             }
         }
 
-        // 🚀 Mesajlaşma Paneli Açma ve Anlık Döngü Başlatma
         async function openDirectMessage(friendId, friendUsername) {
             currentChatFriendId = friendId;
-            const panelBox = document.querySelector('.panel-box');
-            panelBox.innerHTML = `
-                <div class="panel-title" id="panelTitle">${friendUsername} ile Sohbet</div>
-                <div style="display: flex; flex-direction: column; height: 380px; justify-content: space-between;">
-                    <div id="chatMessages" style="flex: 1; overflow-y: auto; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+            const container = document.getElementById('mainContentArea');
+            document.getElementById('panelTitle').textContent = friendUsername + ' ile Sohbet';
+
+            container.innerHTML = `
+                <div class="chat-wrapper">
+                    <div id="chatMessages" class="chat-messages">
                         <p style="color: #64748b; font-size: 13px; text-align: center;">Mesajlar yükleniyor...</p>
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="chatInput" placeholder="${friendUsername} kişisine mesaj yaz..." style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none;" onkeypress="if(event.key === 'Enter') sendDirectMessage(${friendId})" />
-                        <button onclick="sendDirectMessage(${friendId})" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Gönder</button>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="${friendUsername} kişisine mesaj yaz..." class="chat-input" onkeypress="if(event.key === 'Enter') sendDirectMessage(${friendId})" />
+                        <button onclick="sendDirectMessage(${friendId})" class="send-btn">Gönder</button>
                     </div>
                 </div>
             `;
@@ -596,7 +651,6 @@
             }, 2000);
         }
 
-        // 🚀 Mesaj Geçmişini Çekme ve Ekrana Basma Fonksiyonu
         async function fetchChatMessages(friendId, scrollToBottom = true) {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
@@ -616,11 +670,33 @@
                     let html = '';
                     data.messages.forEach(m => {
                         const isMe = m.sender_id === data.myId;
-                        const alignStyle = isMe ? 'align-self: flex-end; background: #007bff; color: white;' : 'align-self: flex-start; background: #e2e8f0; color: #1e293b;';
                         
+                        const rowClass = isMe ? 'msg-row my-message' : 'msg-row other-message';
+                        const bubbleBg = isMe ? 'background: #007bff; color: white;' : 'background: #ffffff; color: #333; border: 1px solid #e2e8f0;';
+                        const textAlign = isMe ? 'text-align: right;' : 'text-align: left;';
+                        
+                        const initial = m.sender_name ? m.sender_name.charAt(0).toUpperCase() : 'U';
+                        let avatarHtml = '';
+                        let avatarSrc = m.sender_avatar;
+
+                        if (avatarSrc && avatarSrc.trim() !== '') {
+                            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('/')) {
+                                avatarSrc = '/' + avatarSrc;
+                            }
+                            avatarHtml = `<img src="${avatarSrc}" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" onerror="this.replaceWith(Object.assign(document.createElement('div'), {textContent: '${initial}', style: 'width:34px; height:34px; border-radius:50%; background:#64748b; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px; flex-shrink:0;'}));" />`;
+                        } else {
+                            avatarHtml = `<div style="width: 34px; height: 34px; border-radius: 50%; background: #64748b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0;">${initial}</div>`;
+                        }
+
                         html += `
-                            <div style="max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 14px; ${alignStyle}">
-                                ${m.message}
+                            <div class="${rowClass}">
+                                <div>${avatarHtml}</div>
+                                <div style="max-width: 70%; ${textAlign}">
+                                    <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px;">${m.sender_name || 'Kullanıcı'}</div>
+                                    <div style="padding: 10px 14px; border-radius: 10px; font-size: 14px; display: inline-block; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.05); ${bubbleBg}">
+                                        ${m.message}
+                                    </div>
+                                </div>
                             </div>
                         `;
                     });
@@ -635,7 +711,6 @@
             }
         }
 
-        // 🚀 Mesaj Gönderme Fonksiyonu
         async function sendDirectMessage(receiverId) {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
@@ -663,31 +738,60 @@
             }
         }
 
+        async function loadPendingRequests() {
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+            if (!username || !tag) return;
+
+            try {
+                const response = await fetch(`/api/friends/pending/${username}/${tag}`);
+                const data = await response.json();
+                const container = document.getElementById('mainContentArea');
+                
+                if (response.ok) {
+                    if (!data.requests || data.requests.length === 0) {
+                        container.innerHTML = `<p style="color: #64748b; font-size: 14px;">Şu anda bekleyen arkadaşlık isteği bulunmuyor.</p>`;
+                        return;
+                    }
+
+                    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+                    data.requests.forEach(req => {
+                        html += `
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                <div>
+                                    <span style="font-weight: 600; color: #1e293b;">${req.username}</span>
+                                    <span style="color: #94a3b8; font-size: 12px;">#${req.tag}</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="respondRequest(${req.id}, 'accept')" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Kabul Et</button>
+                                    <button onclick="respondRequest(${req.id}, 'reject')" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Reddet</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    container.innerHTML = html;
+                }
+            } catch (err) { console.error(err); }
+        }
+
         async function loadBlockedUsers() {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
-
             if (!username || !tag) return;
 
             try {
                 const response = await fetch(`/api/friends/blocked/${username}/${tag}`);
                 const data = await response.json();
-                const panelBox = document.querySelector('.panel-box');
+                const container = document.getElementById('mainContentArea');
                 
                 if (response.ok) {
                     if (!data.blocked || data.blocked.length === 0) {
-                        panelBox.innerHTML = `
-                            <div class="panel-title" id="panelTitle">Engellenenler Listesi</div>
-                            <p style="color: #64748b; font-size: 14px;">Engellenmiş kimse bulunmuyor.</p>
-                        `;
+                        container.innerHTML = `<p style="color: #64748b; font-size: 14px;">Engellenmiş kimse bulunmuyor.</p>`;
                         return;
                     }
 
-                    let html = `
-                        <div class="panel-title" id="panelTitle">Engellenenler Listesi</div>
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;" id="blockedListContainer">
-                    `;
-                    
+                    let html = `<div style="display: flex; flex-direction: column; gap: 10px;" id="blockedListContainer">`;
                     data.blocked.forEach(b => {
                         html += `
                             <div id="blocked-row-${b.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -700,16 +804,13 @@
                         `;
                     });
                     html += `</div>`;
-                    panelBox.innerHTML = html;
+                    container.innerHTML = html;
                 }
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function removeFriend(friendId) {
             if (!confirm("Bu kişiyi arkadaşlıktan çıkarmak istediğine emin misin?")) return;
-
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
 
@@ -719,29 +820,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, tag, friendId })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    const row = document.getElementById(`friend-row-${friendId}`);
-                    if (row) row.remove();
-
-                    const container = document.getElementById('friendsListContainer');
-                    if (container && container.children.length === 0) {
-                        document.querySelector('.panel-box').innerHTML = `
-                            <div class="panel-title" id="panelTitle">Arkadaş Listesi</div>
-                            <p style="color: #64748b; font-size: 14px;">Henüz ekli bir arkadaşın bulunmuyor.</p>
-                        `;
-                    }
-                } else {
-                    alert(data.error || 'İşlem başarısız oldu.');
-                }
-            } catch (err) {
-                console.error(err);
-            }
+                if (response.ok) loadAcceptedFriends();
+            } catch (err) { console.error(err); }
         }
 
         async function blockFriend(friendId) {
-            if (!confirm("Bu kullanıcıyı engellemek istediğine emin misin kanka?")) return;
-
+            if (!confirm("Bu kullanıcıyı engellemek istediğine emin misin?")) return;
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
 
@@ -751,23 +835,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, tag, friendId })
                 });
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert("Kullanıcı başarıyla engellendi!");
-                    loadAcceptedFriends();
-                } else {
-                    alert(data.error || "Engelleme başarısız oldu.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Bağlantı hatası oluştu.");
-            }
+                if (response.ok) loadAcceptedFriends();
+            } catch (err) { console.error(err); }
         }
 
         async function unblockUser(friendId) {
-            if (!confirm("Bu kullanıcının engelini kaldırmak istediğine emin misin kanka?")) return;
-
+            if (!confirm("Bu kullanıcının engelini kaldırmak istediğine emin misin?")) return;
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
 
@@ -777,18 +850,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, tag, friendId })
                 });
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert("Kullanıcının engeli kaldırıldı!");
-                    loadBlockedUsers();
-                } else {
-                    alert(data.error || "İşlem başarısız oldu.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Bağlantı hatası oluştu.");
-            }
+                if (response.ok) loadBlockedUsers();
+            } catch (err) { console.error(err); }
         }
 
         async function respondRequest(requestId, action) {
@@ -798,16 +861,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ requestId, action })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    alert(data.message);
-                    loadPendingRequests();
-                } else {
-                    alert(data.error);
-                }
-            } catch (err) {
-                console.error(err);
-            }
+                if (response.ok) loadPendingRequests();
+            } catch (err) { console.error(err); }
         }
     </script>
     <script src="friends-modal.js"></script>
