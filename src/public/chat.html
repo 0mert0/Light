@@ -341,6 +341,7 @@
             align-items: flex-start;
             gap: 10px;
             width: 100%;
+            position: relative;
         }
         .msg-row.my-message {
             flex-direction: row-reverse;
@@ -349,6 +350,34 @@
         .msg-row.other-message {
             flex-direction: row;
             justify-content: flex-start;
+        }
+
+        .msg-row:hover .msg-actions {
+            display: flex;
+        }
+        .msg-actions {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: -10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .msg-action-btn {
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        .msg-action-btn:hover {
+            background: #fee2e2;
         }
 
         .chat-input-area {
@@ -375,6 +404,18 @@
             font-weight: 600;
         }
         .send-btn:hover { background: #0056b3; }
+
+        /* Arkadaş Listesindeki Okunmamış Mesaj Rozeti */
+        .unread-badge {
+            background-color: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 8px;
+            display: inline-block;
+        }
 
         /* Ayarlar Modalı */
         .settings-modal {
@@ -485,6 +526,7 @@
         </div>
     </div>
 
+    <!-- HESAP AYARLARI MODALI -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-content">
             <div class="panel-title">Hesap Ayarları</div>
@@ -510,6 +552,9 @@
     <script>
         let currentChatFriendId = null;
         let chatInterval = null;
+        let lastSeenMessageId = null;
+        // Kullanıcının her arkadaş için en son okuduğu mesaj ID'lerini tutan hafıza
+        let lastReadMessageMap = JSON.parse(localStorage.getItem('light_last_reads') || '{}');
 
         document.addEventListener('DOMContentLoaded', () => {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
@@ -555,6 +600,12 @@
                 e.stopPropagation();
             });
 
+            window.addEventListener('focus', () => {
+                if (currentChatFriendId) {
+                    document.title = "Light - Ana Menü";
+                }
+            });
+
             setInterval(() => {
                 const panelTitleText = document.getElementById('panelTitle').textContent;
                 if (panelTitleText.includes(' ile Sohbet')) return; 
@@ -573,34 +624,16 @@
             }, 3000);
         });
 
-       async function setStatus(statusName, colorCode, pillId) {
-    // 1. Arayüz ve localStorage güncellemeleri (Zaten vardı)
-    document.getElementById('accountStatusDot').style.backgroundColor = colorCode;
-    localStorage.setItem('light_status_color', colorCode);
-    localStorage.setItem('light_status', statusName);
-    localStorage.setItem('light_status_pill', pillId);
+        function setStatus(statusName, colorCode, pillId) {
+            document.getElementById('accountStatusDot').style.backgroundColor = colorCode;
+            localStorage.setItem('light_status_color', colorCode);
+            localStorage.setItem('light_status', statusName);
+            localStorage.setItem('light_status_pill', pillId);
 
-    document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
-    document.getElementById(pillId).classList.add('active-status');
-    document.getElementById('userPopover').classList.remove('show');
-
-    // 2. 🔥 YENİ: Veritabanına (Backend'e) Durumu Gönderme
-    const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
-    const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
-
-    if (username && tag) {
-        try {
-            await fetch('/api/auth/update-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, tag, status: statusName })
-            });
-            console.log('Durum sunucuya kaydedildi:', statusName);
-        } catch (err) {
-            console.error('Durum sunucuya kaydedilemedi:', err);
+            document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
+            document.getElementById(pillId).classList.add('active-status');
+            document.getElementById('userPopover').classList.remove('show');
         }
-    }
-}
 
         function logoutUser() {
             localStorage.clear();
@@ -612,6 +645,7 @@
             document.getElementById('userPopover').classList.remove('show');
             const currUser = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const currAvatar = localStorage.getItem('light_avatar') || sessionStorage.getItem('light_avatar');
+            
             document.getElementById('settingsUsernameInput').value = currUser || '';
             document.getElementById('settingsAvatarFile').value = ''; 
             updateAvatarPreview(currAvatar, currUser);
@@ -686,6 +720,7 @@
 
                     alert('Ayarlar başarıyla kaydedildi!');
                     closeSettingsModal();
+                    location.reload(); 
                 } else {
                     alert(data.error || 'Güncelleme başarısız oldu.');
                 }
@@ -698,6 +733,7 @@
         function switchHeaderTab(element, title) {
             if (chatInterval) clearInterval(chatInterval);
             currentChatFriendId = null;
+            document.title = "Light - Ana Menü";
 
             document.querySelectorAll('.top-header .tab-btn').forEach(btn => {
                 if (!btn.classList.contains('add-btn')) btn.classList.remove('active');
@@ -718,6 +754,7 @@
             }
         }
 
+        // Arkadaş listesini ve yanlarında kaç okunmamış mesaj olduğunu hesaplayarak çeken fonksiyon
         async function loadAcceptedFriends() {
             const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
             const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
@@ -735,19 +772,55 @@
                     }
 
                     let html = `<div style="display: flex; flex-direction: column; gap: 10px;" id="friendsListContainer">`;
-                    data.friends.forEach(f => {
+                    
+                    for (const f of data.friends) {
                         let statusColor = '#10b981';
                         if (f.status === 'Meşgul') statusColor = '#ef4444';
                         else if (f.status === 'Rahatsız Etmeyin') statusColor = '#f59e0b';
                         else if (f.status === 'Görünmez') statusColor = '#94a3b8';
 
+                        // Yuvarlak profil resmi hazırlığı
+                        const initial = f.username ? f.username.charAt(0).toUpperCase() : 'U';
+                        let avatarHtml = '';
+                        let avatarSrc = f.avatar;
+
+                        if (avatarSrc && avatarSrc.trim() !== '') {
+                            if (!avatarSrc.startsWith('http') && !avatarSrc.startsWith('/')) {
+                                avatarSrc = '/' + avatarSrc;
+                            }
+                            avatarHtml = `<img src="${avatarSrc}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" onerror="this.replaceWith(Object.assign(document.createElement('div'), {textContent: '${initial}', style: 'width:36px; height:36px; border-radius:50%; background:#64748b; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; flex-shrink:0;'}));" />`;
+                        } else {
+                            avatarHtml = `<div style="width: 36px; height: 36px; border-radius: 50%; background: #64748b; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0;">${initial}</div>`;
+                        }
+
+                        // Okunmamış mesaj sayısını bulmak için her arkadaşın mesaj geçmişini sorgulayalım
+                        let unreadBadgeHtml = '';
+                        try {
+                            const chatRes = await fetch(`/api/chat/history/${username}/${tag}/${f.id}`);
+                            const chatData = await chatRes.json();
+                            if (chatRes.ok && chatData.messages && chatData.messages.length > 0) {
+                                const lastReadId = lastReadMessageMap[f.id] || 0;
+                                // Bizim dışımızda gelen ve son okunan ID'den büyük olan mesajları sayalım
+                                const unreadCount = chatData.messages.filter(m => m.sender_id !== chatData.myId && m.id > lastReadId).length;
+                                if (unreadCount > 0) {
+                                    unreadBadgeHtml = `<span class="unread-badge">${unreadCount}</span>`;
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Unread check error:", e);
+                        }
+
                         html += `
                             <div id="friend-row-${f.id}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor};"></div>
-                                    <div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="position: relative;">
+                                        ${avatarHtml}
+                                        <div style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #ffffff; background-color: ${statusColor};"></div>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
                                         <span style="font-weight: 600; color: #1e293b;">${f.username}</span>
-                                        <span style="color: #94a3b8; font-size: 12px;">#${f.tag}</span>
+                                        <span style="color: #94a3b8; font-size: 12px; margin-left: 4px;">#${f.tag}</span>
+                                        ${unreadBadgeHtml}
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
@@ -757,7 +830,7 @@
                                 </div>
                             </div>
                         `;
-                    });
+                    }
                     html += `</div>`;
                     container.innerHTML = html;
                 }
@@ -768,16 +841,19 @@
 
         async function openDirectMessage(friendId, friendUsername) {
             currentChatFriendId = friendId;
+            lastSeenMessageId = null;
+            document.title = "Light - Ana Menü";
+
             const container = document.getElementById('mainContentArea');
             document.getElementById('panelTitle').textContent = friendUsername + ' ile Sohbet';
 
             container.innerHTML = `
                 <div class="chat-wrapper">
-                    <div id="chatMessages" class="chat-messages">
+                    <div id="chatMessages" class="chat-messages" onclick="clearNotificationTitle(${friendId})">
                         <p style="color: #64748b; font-size: 13px; text-align: center;">Mesajlar yükleniyor...</p>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chatInput" placeholder="${friendUsername} kişisine mesaj yaz..." class="chat-input" onkeypress="if(event.key === 'Enter') sendDirectMessage(${friendId})" />
+                        <input type="text" id="chatInput" placeholder="${friendUsername} kişisine mesaj yaz..." class="chat-input" onfocus="clearNotificationTitle(${friendId})" onkeypress="if(event.key === 'Enter') sendDirectMessage(${friendId})" />
                         <button onclick="sendDirectMessage(${friendId})" class="send-btn">Gönder</button>
                     </div>
                 </div>
@@ -791,6 +867,16 @@
                     fetchChatMessages(friendId, false);
                 }
             }, 2000);
+        }
+
+        function clearNotificationTitle(friendId = null) {
+            if (document.title.includes('🔴')) {
+                document.title = "Light - Ana Menü";
+            }
+            if (friendId && lastSeenMessageId) {
+                lastReadMessageMap[friendId] = lastSeenMessageId;
+                localStorage.setItem('light_last_reads', JSON.stringify(lastReadMessageMap));
+            }
         }
 
         async function fetchChatMessages(friendId, scrollToBottom = true) {
@@ -809,6 +895,21 @@
                         return;
                     }
 
+                    const latestMsg = data.messages[data.messages.length - 1];
+                    
+                    if (lastSeenMessageId === null) {
+                        lastSeenMessageId = latestMsg.id;
+                        if (currentChatFriendId === friendId) {
+                            lastReadMessageMap[friendId] = latestMsg.id;
+                            localStorage.setItem('light_last_reads', JSON.stringify(lastReadMessageMap));
+                        }
+                    } else if (latestMsg.id > lastSeenMessageId) {
+                        if (latestMsg.sender_id !== data.myId) {
+                            document.title = "🔴 (Yeni Mesaj) Light - Ana Menü";
+                        }
+                        lastSeenMessageId = latestMsg.id;
+                    }
+
                     let html = '';
                     data.messages.forEach(m => {
                         const isMe = m.sender_id === data.myId;
@@ -817,6 +918,15 @@
                         const bubbleBg = isMe ? 'background: #007bff; color: white;' : 'background: #ffffff; color: #333; border: 1px solid #e2e8f0;';
                         const textAlign = isMe ? 'text-align: right;' : 'text-align: left;';
                         
+                        let deleteBtnHtml = '';
+                        if (isMe) {
+                            deleteBtnHtml = `
+                                <div class="msg-actions">
+                                    <button class="msg-action-btn" onclick="deleteMessage(${m.id})">🗑️ Sil</button>
+                                </div>
+                            `;
+                        }
+
                         const initial = m.sender_name ? m.sender_name.charAt(0).toUpperCase() : 'U';
                         let avatarHtml = '';
                         let avatarSrc = m.sender_avatar;
@@ -833,7 +943,8 @@
                         html += `
                             <div class="${rowClass}">
                                 <div>${avatarHtml}</div>
-                                <div style="max-width: 70%; ${textAlign}">
+                                <div style="max-width: 70%; ${textAlign}; position: relative;">
+                                    ${deleteBtnHtml}
                                     <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 2px;">${m.sender_name || 'Kullanıcı'}</div>
                                     <div style="padding: 10px 14px; border-radius: 10px; font-size: 14px; display: inline-block; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.05); ${bubbleBg}">
                                         ${m.message}
@@ -870,6 +981,7 @@
 
                 if (response.ok) {
                     input.value = '';
+                    clearNotificationTitle(receiverId);
                     await fetchChatMessages(receiverId, true);
                 } else {
                     const data = await response.json();
@@ -877,6 +989,33 @@
                 }
             } catch (err) {
                 console.error('Mesaj gönderme hatası:', err);
+            }
+        }
+
+        async function deleteMessage(messageId) {
+            if (!confirm("Bu mesajı silmek istediğine emin misin?")) return;
+
+            const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+            const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+            try {
+                const response = await fetch('/api/chat/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messageId, username, tag })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    if (currentChatFriendId) {
+                        fetchChatMessages(currentChatFriendId, false);
+                    }
+                } else {
+                    alert(data.error || 'Mesaj silinemedi.');
+                }
+            } catch (err) {
+                console.error('Mesaj silinirken hata oluştu:', err);
+                alert('Bağlantı hatası.');
             }
         }
 

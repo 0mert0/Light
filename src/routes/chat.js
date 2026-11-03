@@ -55,4 +55,31 @@ router.get('/history/:username/:tag/:friendId', async (req, res) => {
     }
 });
 
+// Discord Tarzı Mesaj Silme Rotası
+router.post('/delete', async (req, res) => {
+    const { messageId, username, tag } = req.body;
+
+    try {
+        const userRes = await pool.query('SELECT id FROM users WHERE username = $1 AND tag = $2', [username, tag]);
+        if (userRes.rows.length === 0) {
+            return res.status(401).json({ error: 'Kullanıcı bulunamadı.' });
+        }
+        const userId = userRes.rows[0].id;
+
+        const deleteRes = await pool.query(
+            'DELETE FROM messages WHERE id = $1 AND sender_id = $2 RETURNING *',
+            [messageId, userId]
+        );
+
+        if (deleteRes.rows.length === 0) {
+            return res.status(403).json({ error: 'Bu mesajı silme yetkiniz yok veya mesaj bulunamadı.' });
+        }
+
+        res.json({ success: true, message: 'Mesaj silindi.' });
+    } catch (err) {
+        console.error('Mesaj silme hatası:', err);
+        res.status(500).json({ error: 'Sunucu hatası oluştu.' });
+    }
+});
+
 module.exports = router;
