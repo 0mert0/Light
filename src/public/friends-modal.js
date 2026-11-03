@@ -5,7 +5,7 @@ function injectAddFriendModal() {
         <div id="addFriendModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;">
             <div style="background:#fff; padding:25px; border-radius:12px; width:400px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
                 <h3 style="margin-bottom:10px; color:#1e293b; font-size:18px;">Arkadaş Ekle</h3>
-                <p style="font-size:13px; color:#64748b; margin-bottom:15px;">Arkadaşının kullanıcı adını ve etiketini yaz (Örn: <b>Mertt#1453</b>)</p>
+                <p style="font-size:13px; color:#64748b; margin-bottom:15px;">Arkadaşının kullanıcı adını ve etiketini yaz (Örn: <b>isim#1453</b>)</p>
                 <input type="text" id="targetUsernameInput" placeholder="KullanıcıAdı#1234" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; outline:none; margin-bottom:15px; font-size:14px;">
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
                     <button id="closeModalBtn" style="padding:8px 14px; background:#f1f5f9; border:none; border-radius:6px; color:#475569; font-weight:600; cursor:pointer;">İptal</button>

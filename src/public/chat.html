@@ -336,7 +336,6 @@
             gap: 14px;
         }
 
-        /* Sağ / Sol Hizalama Sınıfları */
         .msg-row {
             display: flex;
             align-items: flex-start;
@@ -435,7 +434,6 @@
             </div>
         </div>
 
-        <!-- Sol Alt Profil ve Açılır Menü Alanı -->
         <div class="account-footer">
             <div class="account-info" id="profileMenuToggle" title="Profil & Menü">
                 <div class="account-avatar-wrapper">
@@ -450,7 +448,6 @@
                 </div>
             </div>
 
-            <!-- Açılır Menü (Durum Seçimi + Ayarlar + Hesaptan Çık) -->
             <div class="user-popover" id="userPopover">
                 <div class="popover-section-title">Durum Seç</div>
                 <div class="status-selector-grid">
@@ -488,7 +485,6 @@
         </div>
     </div>
 
-    <!-- Ayarlar Modalı -->
     <div class="settings-modal" id="settingsModal">
         <div class="settings-content">
             <div class="panel-title">Hesap Ayarları</div>
@@ -543,7 +539,6 @@
 
             loadAcceptedFriends();
 
-            // Profil menüsünü açma/kapatma mantığı
             const profileToggle = document.getElementById('profileMenuToggle');
             const popover = document.getElementById('userPopover');
 
@@ -578,16 +573,34 @@
             }, 3000);
         });
 
-        function setStatus(statusName, colorCode, pillId) {
-            document.getElementById('accountStatusDot').style.backgroundColor = colorCode;
-            localStorage.setItem('light_status_color', colorCode);
-            localStorage.setItem('light_status', statusName);
-            localStorage.setItem('light_status_pill', pillId);
+       async function setStatus(statusName, colorCode, pillId) {
+    // 1. Arayüz ve localStorage güncellemeleri (Zaten vardı)
+    document.getElementById('accountStatusDot').style.backgroundColor = colorCode;
+    localStorage.setItem('light_status_color', colorCode);
+    localStorage.setItem('light_status', statusName);
+    localStorage.setItem('light_status_pill', pillId);
 
-            document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
-            document.getElementById(pillId).classList.add('active-status');
-            document.getElementById('userPopover').classList.remove('show');
+    document.querySelectorAll('.status-pill').forEach(p => p.classList.remove('active-status'));
+    document.getElementById(pillId).classList.add('active-status');
+    document.getElementById('userPopover').classList.remove('show');
+
+    // 2. 🔥 YENİ: Veritabanına (Backend'e) Durumu Gönderme
+    const username = localStorage.getItem('light_username') || sessionStorage.getItem('light_username');
+    const tag = localStorage.getItem('light_tag') || sessionStorage.getItem('light_tag');
+
+    if (username && tag) {
+        try {
+            await fetch('/api/auth/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, tag, status: statusName })
+            });
+            console.log('Durum sunucuya kaydedildi:', statusName);
+        } catch (err) {
+            console.error('Durum sunucuya kaydedilemedi:', err);
         }
+    }
+}
 
         function logoutUser() {
             localStorage.clear();
@@ -983,15 +996,28 @@
             } catch (err) { console.error(err); }
         }
 
-        async function respondRequest(requestId, action) {
+        async function respondRequest(friendId, action) {
             try {
-                const response = await fetch('/api/friends/respond', {
+                const res = await fetch('/api/friends/respond', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ requestId, action })
+                    body: JSON.stringify({ 
+                        friendId, 
+                        action 
+                    })
                 });
-                if (response.ok) loadPendingRequests();
-            } catch (err) { console.error(err); }
+                const data = await res.json();
+                
+                if (res.ok) {
+                    alert(data.message);
+                    loadPendingRequests();
+                } else {
+                    alert(data.error || 'İşlem başarısız.');
+                }
+            } catch (err) {
+                console.error("Yanıt verme hatası:", err);
+                alert('Sunucuya bağlanırken bir hata oluştu.');
+            }
         }
     </script>
     <script src="friends-modal.js"></script>
